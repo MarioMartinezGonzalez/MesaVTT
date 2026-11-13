@@ -2,6 +2,9 @@
 
 Aplicación de escritorio (Electron) para dirigir partidas de D&D 5e con mapas importados, malla de casillas, tokens controlables y herramientas de medición.
 
+# IMPORTANTE
+solo disponible para linx
+
 ## Puesta en marcha
 
 ```bash
