@@ -1,0 +1,160 @@
+* { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  user-select: none;
+  cursor: default;
+}
+
+body.idle { cursor: none; }
+
+#playerBoard {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+.waiting {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #303a4c;
+  font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
+
+.turn-panel {
+  position: fixed;
+  z-index: 5;
+  top: 20px;
+  right: 20px;
+  width: min(500px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  border: 1px solid rgba(242, 193, 78, 0.34);
+  border-radius: 14px;
+  background: rgba(8, 11, 17, 0.92);
+  box-shadow: 0 20px 56px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(7px);
+  color: #e9eef7;
+  font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+.turn-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 15px 17px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.turn-title {
+  color: #f2c14e;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.turn-round {
+  color: #9aa3b4;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.turn-list {
+  display: grid;
+  gap: 5px;
+  max-height: calc(100vh - 116px);
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.turn-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: #b9c5d7;
+}
+
+.turn-item.current {
+  background: rgba(242, 193, 78, 0.16);
+  box-shadow: inset 3px 0 0 #f2c14e;
+  color: #fff;
+}
+
+.turn-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background: var(--token-color, #4da3ff);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.turn-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.turn-item.current .turn-icon {
+  border-color: #f2c14e;
+  box-shadow: 0 0 0 2px rgba(242, 193, 78, 0.16);
+}
+
+.turn-position {
+  width: 20px;
+  flex: none;
+  color: #7f8a9d;
+  font-size: 11px;
+  text-align: right;
+}
+
+.turn-item.current .turn-position { color: #f2c14e; }
+
+.turn-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.turn-item.enemy .turn-name { color: #ffb5b5; }
+.turn-item.enemy.current .turn-name { color: #fff; }
+
+.turn-total {
+  flex: none;
+  color: #f7d488;
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

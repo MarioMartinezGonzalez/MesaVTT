@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Mesa VTT · Pantalla de jugadores</title>
+  <link rel="stylesheet" href="player.css" />
+</head>
+<body>
+  <canvas id="playerBoard"></canvas>
+  <aside class="turn-panel" id="turnPanel" hidden>
+    <div class="turn-panel-head">
+      <span class="turn-title">Orden de combate</span>
+      <span class="turn-round" id="turnRound"></span>
+    </div>
+    <ol class="turn-list" id="turnList" aria-live="polite"></ol>
+  </aside>
+  <div class="waiting" id="waiting">Esperando el mapa de la mesa…</div>
+  <script src="geometry.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>

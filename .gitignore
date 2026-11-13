@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+Thumbs.db
+
+# Datos locales de la app y exportaciones de escenas
+# (pueden contener mapas, fichas y progreso de la run)
+escena-*.json
+userData/
+.tmp-*

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Mesa VTT · D&D 5e</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- ───────────────────── Barra lateral izquierda: reglas y mediciones ───────────────────── -->
+    <aside class="sidebar sidebar-left">
+      <header class="brand">
+        <div class="brand-mark">d20</div>
+        <div class="brand-text">
+          <h1>Mesa VTT</h1>
+          <p>Dungeons &amp; Dragons 5e</p>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h2 class="panel-title">Herramientas</h2>
+        <div class="tool-list" id="toolList">
+          <button type="button" class="tool active" data-tool="select" title="Seleccionar y mover tokens (V)">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 2.5 15.5 9l-5 1.2-2.7 4.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>Mover / seleccionar</span>
+            <kbd>V</kbd>
+          </button>
+          <button type="button" class="tool" data-tool="ruler" title="Medir distancia (R)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19 19 3M3 19h5M3 19v-5M19 3h-5M19 3v5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span>Regla / distancia</span>
+            <kbd>R</kbd>
+          </button>
+          <button type="button" class="tool" data-tool="cone" title="Medir cono (C)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M3 12 12 4.5A9 9 0 0 1 12 19.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+            <span>Cono</span>
+            <kbd>C</kbd>
+          </button>
+          <button type="button" class="tool" data-tool="circle" title="Medir círculo (O)">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 12h8" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2.5 2.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>
+            <span>Círculo</span>
+            <kbd>O</kbd>
+          </button>
+        </div>
+        <label class="field-row cone-field" id="coneAngleRow" hidden>
+          <span>Apertura del cono</span>
+          <select id="coneAngle">
+            <option value="53">53° (5e)</option>
+            <option value="45">45°</option>
+            <option value="90">90°</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Medición</h2>
+        <div class="readout" id="measureReadout"></div>
+        <button type="button" class="btn ghost full" id="clearMeasure">Quitar medición <kbd>Esc</kbd></button>
+        <p class="hint">La regla cuenta 5 pies por casilla, también en diagonal (regla estándar de 5e).</p>
+      </section>
+
+      <section class="panel panel-rules">
+        <h2 class="panel-title">Reglas rápidas</h2>
+        <details open>
+          <summary>Movimiento y casillas</summary>
+          <ul>
+            <li>1 casilla = 5 pies = 1,5 m.</li>
+            <li>Desplazamiento típico: 30 pies = 6 casillas.</li>
+            <li>Las diagonales cuentan 5 pies (regla estándar).</li>
+            <li>Terreno difícil: 1 casilla cuesta el doble.</li>
+            <li>Correr (Dash) suma otro desplazamiento.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Acciones en combate</summary>
+          <ul>
+            <li>Atacar, lanzar un conjuro, correr, destrabarse, esquivar, esconderse, ayudar, buscar, usar un objeto y preparar.</li>
+            <li>Destrabarse cuesta la acción y termina con el estado apresado.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Cobertura</summary>
+          <ul>
+            <li>Media: +2 a la CA y a las salvaciones de Destreza.</li>
+            <li>Tres cuartos: +5.</li>
+            <li>Total: no se puede ser objetivo de ataques ni conjuros.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Estados frecuentes</summary>
+          <ul>
+            <li><b>Derribado:</b> desventaja al atacar; levantarse cuesta la mitad del movimiento.</li>
+            <li><b>Apresado:</b> velocidad 0.</li>
+            <li><b>Cegado:</b> desventaja al atacar; los ataques contra él tienen ventaja.</li>
+            <li><b>Asustado:</b> desventaja mientras vea la fuente del miedo y no puede acercarse a ella.</li>
+            <li><b>Envenenado:</b> desventaja en ataques y pruebas de característica.</li>
+            <li><b>Aturdido:</b> incapacitado y sin movimiento; los ataques contra él tienen ventaja.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Plantillas de área</summary>
+          <ul>
+            <li>Cono de 5e: 53° de apertura y la longitud del conjuro (15, 30… pies).</li>
+            <li>Círculo: el radio en pies; el diámetro ocupa el doble de casillas.</li>
+          </ul>
+        </details>
+      </section>
+
+      <footer class="sidebar-foot">
+        <span>Rueda: zoom</span>
+        <span>Espacio + arrastrar: vista</span>
+        <span>Supr: borrar token</span>
+        <span>Flechas: mover 1 casilla</span>
+      </footer>
+    </aside>
+
+    <!-- ───────────────────────────── Mesa central ───────────────────────────── -->
+    <main class="stage" id="stage">
+      <canvas id="board"></canvas>
+
+      <div class="stage-hud">
+        <span class="hud-scene" id="hudScene">Escena sin título</span>
+        <span class="hud-hint" id="toolHint"></span>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <div class="empty-card">
+          <div class="empty-icon">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <rect x="7" y="9" width="34" height="30" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 21h34M7 31h34M17 9v30M31 9v30" stroke="currentColor" stroke-width="1.3" opacity=".6"/>
+              <circle cx="24" cy="26" r="4.5" fill="currentColor" opacity=".85"/>
+            </svg>
+          </div>
+          <h2>Tu mesa está vacía</h2>
+          <p>Importa un mapa en JPG, PNG, WEBP, GIF, BMP o AVIF. Después ajusta la malla a las casillas del mapa y añade tokens desde la derecha.</p>
+          <button type="button" class="btn primary" id="emptyImportBtn">Importar mapa…</button>
+        </div>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+
+    <!-- ───────────────────── Barra lateral derecha: mapas y tokens ───────────────────── -->
+    <aside class="sidebar sidebar-right">
+      <section class="panel campaign-panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Campaña / Run</h2>
+          <span class="campaign-status" id="campaignStatus">Sin campaña</span>
+        </div>
+        <div class="campaign-picker-row">
+          <select id="campaignSelect" aria-label="Campaña activa">
+            <option value="">Sin campaña</option>
+          </select>
+          <button type="button" class="mini-add" id="newCampaignBtn" title="Crear campaña">＋</button>
+          <button type="button" class="mini-add" id="deleteCampaignBtn" title="Eliminar campaña" disabled>✕</button>
+        </div>
+        <form id="campaignForm" class="campaign-form" hidden>
+          <input type="text" id="campaignName" maxlength="60" placeholder="Nombre de la run" aria-label="Nombre de la campaña" required />
+          <button type="submit" class="btn compact primary">Crear</button>
+        </form>
+        <div class="btn-row">
+          <button type="button" class="btn full" id="saveRunBtn" disabled>Guardar run</button>
+          <button type="button" class="btn full" id="loadRunBtn" disabled>Cargar run</button>
+        </div>
+        <details class="campaign-details" open>
+          <summary>Fichas de personaje</summary>
+          <button type="button" class="btn ghost compact full" id="saveCharacterBtn" disabled>Guardar token seleccionado</button>
+          <div class="campaign-list" id="characterList"></div>
+        </details>
+        <details class="campaign-details">
+          <summary>Enemigos</summary>
+          <button type="button" class="btn ghost compact full" id="saveEnemyBtn" disabled>Guardar enemigo seleccionado</button>
+          <div class="campaign-list" id="enemyList"></div>
+        </details>
+        <details class="campaign-details">
+          <summary>Mapas de la run</summary>
+          <button type="button" class="btn ghost compact full" id="saveCampaignMapBtn" disabled>Guardar mapa actual</button>
+          <div class="campaign-list" id="campaignMapList"></div>
+        </details>
+        <p class="hint">Los datos se guardan como archivos dentro de la carpeta de campañas de la app. Guarda la run antes de cerrar para conservar posiciones, PG y combate.</p>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Biblioteca de mapas</h2>
+          <button type="button" class="mini-add" id="newFolderBtn" title="Crear una carpeta">＋ Carpeta</button>
+        </div>
+        <form class="folder-create" id="folderForm" hidden>
+          <input type="text" id="folderName" maxlength="48" placeholder="Nombre de la carpeta" aria-label="Nombre de la carpeta" />
+          <button type="submit" class="btn compact primary">Crear</button>
+        </form>
+        <div class="library-filters">
+          <input type="search" id="librarySearch" placeholder="Buscar mapa…" aria-label="Buscar mapa" />
+          <select id="libraryFormat" aria-label="Filtrar por formato">
+            <option value="">Todos</option>
+            <option value="png">PNG</option>
+            <option value="jpg">JPG</option>
+            <option value="webp">WEBP</option>
+            <option value="gif">GIF</option>
+            <option value="bmp">BMP</option>
+            <option value="avif">AVIF</option>
+          </select>
+        </div>
+        <button type="button" class="btn ghost compact full library-import" id="importFolderBtn">Importar carpeta con subcarpetas…</button>
+        <div class="map-library" id="mapLibrary"></div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Mapa</h2>
+        <button type="button" class="btn primary full" id="importMapBtn">Importar mapa…</button>
+        <button type="button" class="btn full" id="saveToLibraryBtn" disabled>Guardar mapa actual en biblioteca</button>
+        <form class="save-map-form" id="saveMapForm" hidden>
+          <select id="saveMapFolder" aria-label="Carpeta de destino"></select>
+          <button type="submit" class="btn compact primary">Guardar</button>
+        </form>
+        <p class="map-info" id="mapInfo">Sin mapa cargado</p>
+
+        <div class="grid-controls" id="gridControls">
+          <label class="switch">
+            <input type="checkbox" id="gridVisible" checked />
+            <span>Mostrar malla</span>
+          </label>
+
+          <div class="field-grid">
+            <label class="field-row">
+              <span>Casilla (px)</span>
+              <input type="number" id="gridCell" min="10" max="400" step="1" value="70" />
+            </label>
+            <label class="field-row">
+              <span>Opacidad</span>
+              <input type="range" id="gridOpacity" min="0" max="100" value="38" />
+            </label>
+            <label class="field-row">
+              <span>Desfase X</span>
+              <input type="number" id="gridOffsetX" step="1" value="0" />
+            </label>
+            <label class="field-row">
+              <span>Desfase Y</span>
+              <input type="number" id="gridOffsetY" step="1" value="0" />
+            </label>
+          </div>
+
+          <label class="switch">
+            <input type="checkbox" id="gridSnap" checked />
+            <span>Ajustar tokens y medidas a casillas</span>
+          </label>
+        </div>
+
+        <div class="view-controls">
+          <button type="button" class="btn icon" id="zoomOut" title="Alejar">−</button>
+          <span class="zoom-label" id="zoomLabel">100%</span>
+          <button type="button" class="btn icon" id="zoomIn" title="Acercar">+</button>
+          <button type="button" class="btn ghost compact" id="fitMapBtn" title="Centrar y ajustar el mapa">Centrar</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Tokens</h2>
+        <form id="tokenForm" class="token-form" autocomplete="off">
+          <label class="field-row">
+            <span>Nombre</span>
+            <input type="text" id="tokenName" placeholder="Aria, Goblin…" maxlength="28" required />
+          </label>
+
+          <div class="type-picker" id="typePicker">
+            <label class="type-option player">
+              <input type="radio" name="tokenType" value="player" checked />
+              <span>Jugador</span>
+            </label>
+            <label class="type-option enemy">
+              <input type="radio" name="tokenType" value="enemy" />
+              <span>Enemigo</span>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field-row">
+              <span>PG</span>
+              <input type="number" id="tokenHp" min="1" max="9999" step="1" value="10" />
+            </label>
+            <label class="field-row">
+              <span>Tamaño</span>
+              <select id="tokenSize">
+                <option value="1">1×1</option>
+                <option value="2">2×2 · Grande</option>
+                <option value="3">3×3 · Enorme</option>
+                <option value="4">4×4 · Gigante</option>
+              </select>
+            </label>
+            <label class="field-row">
+              <span>Iniciativa (mod.)</span>
+              <input type="number" id="tokenInitiative" min="-20" max="20" step="1" value="0" />
+            </label>
+          </div>
+
+          <label class="field-row">
+            <span>Color</span>
+            <input type="color" id="tokenColor" value="#4da3ff" />
+          </label>
+
+          <div class="token-image-row">
+            <button type="button" class="btn ghost" id="tokenImageBtn">Imagen (opcional)</button>
+            <div class="thumb" id="tokenImageThumb" hidden>
+              <img alt="Vista previa del token" id="tokenImagePreview" />
+              <button type="button" class="thumb-x" id="tokenImageClear" title="Quitar imagen">×</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn primary full">Crear token</button>
+        </form>
+
+        <div class="token-list" id="tokenList"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">Combate</h2>
+          <span class="combat-round" id="combatRound">Sin combate</span>
+        </div>
+        <button type="button" class="btn primary full" id="rollInitiativeBtn">Tirar iniciativa</button>
+        <div class="btn-row">
+          <button type="button" class="btn full" id="nextTurnBtn" disabled>Siguiente turno</button>
+          <button type="button" class="btn full" id="endCombatBtn" disabled>Terminar</button>
+        </div>
+        <ol class="combat-order" id="combatOrder"></ol>
+        <p class="hint">Cada tirada es 1d20 + el modificador de iniciativa. La lista de turnos aparece también en la pantalla de jugadores.</p>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Escena</h2>
+        <label class="field-row">
+          <span>Nombre</span>
+          <input type="text" id="sceneName" maxlength="48" placeholder="Escena sin título" />
+        </label>
+        <div class="btn-row">
+          <button type="button" class="btn full" id="exportBtn">Exportar JSON</button>
+          <button type="button" class="btn full" id="importBtn">Importar JSON</button>
+        </div>
+        <button type="button" class="btn danger full" id="newSceneBtn">Nueva escena</button>
+        <p class="hint" id="saveStatus">Guardado automático activo.</p>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Pantalla de jugadores</h2>
+        <button type="button" class="btn primary full" id="playerWindowBtn">Abrir pantalla de jugadores</button>
+        <div class="player-display-options">
+          <label class="switch">
+            <input type="checkbox" id="playerShowHp" checked />
+            <span>Mostrar barras de vida</span>
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="playerShowMeasure" checked />
+            <span>Mostrar mediciones de reglas</span>
+          </label>
+        </div>
+        <p class="hint">Las barras muestran solo la proporción de vida, sin cifras exactas. La medición activa y el orden de combate también aparecen en el proyector. Si hay un segundo monitor, se abre allí a pantalla completa; F11 alterna y Esc sale. Ideal para capturarla con OBS.</p>
+      </section>
+    </aside>
+  </div>
+
+  <div class="modal-backdrop" id="tokenEditor" hidden>
+    <form class="modal-card" id="tokenEditorForm" autocomplete="off">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title">Editar token</h2>
+          <p class="modal-sub" id="tokenEditorName"></p>
+        </div>
+        <button type="button" class="icon-btn modal-close" id="tokenEditorClose" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="token-editor-grid">
+        <label class="field-row">
+          <span>Posición X (px)</span>
+          <input type="number" id="tokenEditX" step="1" required />
+        </label>
+        <label class="field-row">
+          <span>Posición Y (px)</span>
+          <input type="number" id="tokenEditY" step="1" required />
+        </label>
+        <label class="field-row">
+          <span>PG actuales</span>
+          <input type="number" id="tokenEditHpCur" min="0" max="9999" step="1" required />
+        </label>
+        <label class="field-row">
+          <span>PG máximos</span>
+          <input type="number" id="tokenEditHpMax" min="1" max="9999" step="1" required />
+        </label>
+        <label class="field-row">
+          <span>Iniciativa (mod.)</span>
+          <input type="number" id="tokenEditInitiative" min="-20" max="20" step="1" required />
+        </label>
+      </div>
+      <p class="hint modal-hint">Solo para el DM. La pantalla de jugadores no recibe los PG ni las cifras exactas.</p>
+      <div class="btn-row modal-actions">
+        <button type="button" class="btn full" id="tokenEditorCancel">Cancelar</button>
+        <button type="submit" class="btn primary full">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="geometry.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

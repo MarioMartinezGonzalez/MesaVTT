@@ -1,0 +1,55 @@
+{
+  "name": "mesa-vtt",
+  "version": "1.0.0",
+  "description": "Mesa virtual de D&D 5e: mapas, malla, tokens y herramientas de medición",
+  "desktopName": "mesa-vtt.desktop",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "pack:linux": "electron-builder --linux dir",
+    "dist:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^45.3.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.mesavtt.app",
+    "productName": "Mesa VTT",
+    "executableName": "mesa-vtt",
+    "artifactName": "MesaVTT-${version}-${arch}.${ext}",
+    "asar": true,
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "player-preload.js",
+      "index.html",
+      "styles.css",
+      "renderer.js",
+      "geometry.js",
+      "library.js",
+      "campaign.js",
+      "player.html",
+      "player.css",
+      "player.js",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "tar.gz"
+      ],
+      "category": "Game",
+      "syncDesktopName": true,
+      "icon": "build/icon.png",
+      "synopsis": "Mesa virtual de D&D 5e",
+      "description": "Mesa virtual de escritorio para D&D 5e: mapas, malla, tokens, mediciones y pantalla de jugadores."
+    }
+  }
+}
